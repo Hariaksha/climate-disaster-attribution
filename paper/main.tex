@@ -23,7 +23,7 @@
 % Title / Authors
 % ---------------------------------------------------------------
 
-\title{Reading the Storm: Media Attribution of United States Climate Disasters, 2000--2024}
+\title{Reading the Storm: Media Attribution of United States Climate Disasters, A Long Panel}
 
 \author[1]{Hariaksha Gunda}
 \author[2]{Dr. Michael Price}
@@ -44,30 +44,25 @@
 % ---------------------------------------------------------------
 \begin{abstract}
 \begin{sloppypar}
-We construct an Attribution Index measuring how U.S.\ newspaper
-coverage frames the causal origins of billion-dollar climate disasters.
-Using an LLM-based coding pipeline validated against an independent
-human audit ($\kappa = 0.96$ for relevance, weighted
-$\kappa_w = 0.96$--$0.98$ for attribution), we classify 1,252
-articles retrieved for all 313 NOAA billion-dollar disaster events
-from 2000 to 2024 on a scale from explicit non-climate attribution
-($-1$) to explicit anthropogenic attribution ($+1$) and aggregate these
-to a disaster-level index.  We document three findings.  First, the
-dominant mode of disaster coverage is silence on causation: 74.8\% of
-articles contain no causal claim, and the mean disaster-level index is
-0.028, close to neutral.  Second, attribution framing has risen
-steadily at 0.013 index points per year ($p < 0.001$), shifting from a
-pre-2010 mean of $-0.105$ to a post-2010 mean of $+0.057$, consistent
-with a structural break in partisan climate discourse documented in the
-prior literature.  Third, outlet political lean predicts attribution
-framing: a one-point increase in Ad Fontes Bias score is associated
-with a 0.011-point decrease in the Attribution Index ($p = 0.013$,
-clustered standard errors), an effect concentrated in national and
-wire-service coverage and robust to disaster fixed effects and
-alternative lean measures.  By contrast, disaster type, CPI-adjusted
-cost, death toll, and geography have no significant predictive power.
-These findings establish a new empirical baseline for the role of
-media framing in the transmission of climate-disaster risk.
+Does the media tell readers why a disaster happened? We study how
+U.S.\ newspapers frame the causal origins of billion-dollar climate
+disasters, constructing an index of attribution that ranges from
+explicit denial of a climate link to explicit anthropogenic
+attribution, applied to articles covering every major disaster the
+federal government has recorded since 2000. We document three
+findings. First, silence is the norm: three in four articles make no
+causal claim at all, and the typical disaster is covered in terms
+close to causally neutral. Second, this silence is receding --
+attribution framing has risen steadily over the past two decades,
+consistent with a broader partisan realignment around climate change
+that took hold after 2010. Third, an outlet's political lean strongly
+predicts how it frames disaster causation, with the effect concentrated
+in national and wire-service coverage rather than local newspapers.
+By contrast, the severity, type, and location of a disaster are
+essentially uninformative about how it gets framed. These patterns
+suggest that public understanding of climate risk is shaped less by
+the disasters themselves than by the media environment interpreting
+them.
 \end{sloppypar}
 \end{abstract}
 
@@ -919,26 +914,17 @@ $\text{AttributionIndex}_d$ on year (slope $=0.0129$, $p<0.001$).}
 \end{figure}
 
 \FloatBarrier
-Figure~\ref{fig:index_hist} shows the full cross-sectional distribution
-underlying that trend. The index is exactly $0.0$ for 55.5\% of covered
-disasters (consistent with category C, no causal attribution, being the
-modal article-level code), with 30.6\% net-positive (mean tilt toward
-anthropogenic framing) and 13.9\% net-negative; most of the non-zero mass
-sits close to zero in both directions, and disasters with a strongly
+Appendix Figure~\ref{fig:index_hist} shows the full cross-sectional
+distribution underlying that trend. The index is exactly $0.0$ for 55.5\%
+of covered disasters (consistent with category C, no causal attribution,
+being the modal article-level code), with 30.6\% net-positive (mean tilt
+toward anthropogenic framing) and 13.9\% net-negative; most of the non-zero
+mass sits close to zero in both directions, and disasters with a strongly
 net-anthropogenic ($\text{AttributionIndex}_d$ near $+1$) or net-skeptical
 (near $-1$) coverage profile are rare. This reinforces the reading from
 Section~\ref{sec:summary_stats}: the year-over-year movement documented
 above is a shift in the modest tilt of an otherwise near-zero-centered
 distribution, not a shift between two opposed extremes.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.7\textwidth]{figures/attribution_index_hist.pdf}
-\caption{Distribution of the Disaster-Level Attribution Index ($N=209$
-covered disasters). Vertical line at the mean ($0.028$); dotted line at
-zero.}
-\label{fig:index_hist}
-\end{figure}
 
 \FloatBarrier
 \subsection{Variation by Geography}
@@ -967,7 +953,7 @@ section and from any specification including geography.
 Mean Attribution Index varies little across NOAA disaster types -- from
 $0.000$ (Freeze, $N=2$) to $0.074$ (Winter Storm, $N=12$) -- and a one-way
 ANOVA finds no significant difference across the seven types ($F=0.32$,
-$p=0.93$; full per-type means in Table~\ref{tab:type_means}, full
+$p=0.93$; full per-type means in Appendix Table~\ref{tab:type_means}, full
 type-dummy regression coefficients in Appendix
 Table~\ref{tab:appendix_type_full}). Severity, measured as
 log-CPI-adjusted cost and log(deaths$+1$), is similarly uninformative on
@@ -978,31 +964,6 @@ significant predictor. In short, none of the disaster's own physical
 characteristics -- what kind of disaster it was, how costly, how deadly, or
 how long it lasted -- predicts how its coverage frames causation, at least
 in this disaster-level cross-section.
-
-\begin{table}[ht]
-\centering
-\caption{Mean Attribution Index by Disaster Type}
-\label{tab:type_means}
-\begin{threeparttable}
-\begin{tabular}{lcccc}
-\toprule
-Disaster Type & $N$ & Mean & Median & SD \\
-\midrule
-Severe Storm      & 89 & 0.005 & 0.000 & 0.236 \\
-Tropical Cyclone  & 45 & 0.055 & 0.022 & 0.113 \\
-Flooding          & 25 & 0.028 & 0.000 & 0.175 \\
-Drought           & 18 & 0.026 & 0.017 & 0.476 \\
-Wildfire          & 18 & 0.048 & 0.021 & 0.315 \\
-Winter Storm      & 12 & 0.074 & 0.000 & 0.148 \\
-Freeze            &  2 & 0.000 & 0.000 & 0.000 \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}
-\small
-\item Notes: One-way ANOVA across the seven types: $F=0.32$, $p=0.93$.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
 
 \subsection{Variation by Outlet Characteristics}
 \label{sec:outlet_results}
@@ -1031,25 +992,15 @@ less likely to frame disasters as anthropogenically caused, even after
 accounting for which disasters and which years they're covering. This
 holds up in the bivariate specification as well ($-0.013$, $p=0.002$) and
 is robust to using the AllSides score instead of Ad Fontes
-($-0.033$, $p=0.003$; Section~\ref{sec:results_robustness}). Figure~\ref{fig:outlet_lean_scatter}
-plots the underlying relationship: a jittered scatter of the four discrete
-article-level scores against outlet Bias score, with the OLS fit and
-binned means overlaid -- the binned means track the linear fit closely,
-suggesting the relationship is not an artifact of a nonlinear pattern
-being forced into a straight line. (Section~\ref{sec:results_robustness}
-also shows this effect is concentrated in national-outlet coverage and
-does not hold among local-only articles.)
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.75\textwidth]{figures/outlet_lean_scatter.pdf}
-\caption{Outlet Political Lean vs.\ Article Attribution Score ($N=889$
-articles from individually-rated domains). Points are jittered on the
-$y$-axis for visibility, since the underlying score only takes four
-values ($-1, 0, 0.5, 1$); diamonds are means within 8 equal-width bins of
-Ad Fontes Bias score.}
-\label{fig:outlet_lean_scatter}
-\end{figure}
+($-0.033$, $p=0.003$; Section~\ref{sec:results_robustness}). Appendix
+Figure~\ref{fig:outlet_lean_scatter} plots the underlying relationship: a
+jittered scatter of the four discrete article-level scores against outlet
+Bias score, with the OLS fit and binned means overlaid -- the binned means
+track the linear fit closely, suggesting the relationship is not an
+artifact of a nonlinear pattern being forced into a straight line.
+(Section~\ref{sec:results_robustness} also shows this effect is
+concentrated in national-outlet coverage and does not hold among
+local-only articles.)
 
 \begin{table}[ht]
 \centering
@@ -1275,65 +1226,10 @@ given the standard error -- we find no evidence the ideological gap in
 attribution framing has systematically widened or narrowed over
 2000--2024.
 
-Table~\ref{tab:robustness_summary} summarizes all checks. With the
-exception of the word-count placebo and the local-only outlet-lean
+Appendix Table~\ref{tab:robustness_summary} summarizes all checks. With
+the exception of the word-count placebo and the local-only outlet-lean
 subsample, every alternative specification and sample restriction leaves
 both headline results intact.
-
-\begin{table}[ht]
-\centering
-\caption{Robustness Check Summary}
-\label{tab:robustness_summary}
-\begin{threeparttable}
-\begin{tabular}{lcc}
-\toprule
-Check & Estimate & $p$-value \\
-\midrule
-\multicolumn{3}{l}{\emph{Year trend}} \\
-\quad Baseline                              & $0.0129$/yr & $<0.001$ \\
-\quad Binary attribution measure            & $0.0100$    & $<0.001$ \\
-\quad D-subtype recoded                     & $0.0102$    & $<0.001$ \\
-\quad Contested (E) excluded                & $0.0130$    & $<0.001$ \\
-\quad $N_d \geq 3$ only                     & $0.0112$    & $<0.001$ \\
-\quad National-outlet articles only         & $0.0174$    & $<0.001$ \\
-\quad Local-outlet articles only            & $0.0107$    & $0.007$ \\
-\quad Ordered logit                         & $0.1044$    & $<0.001$ \\
-\quad Ordered probit                        & $0.0546$    & $<0.001$ \\
-\midrule
-\multicolumn{3}{l}{\emph{Outlet political lean (Ad Fontes Bias score)}} \\
-\quad Baseline (multivariate, clustered SE) & $-0.0112$   & $0.013$ \\
-\quad Bivariate (no controls)               & $-0.0132$   & $0.002$ \\
-\quad Disaster fixed effects                & $-0.0115$   & $0.046$ \\
-\quad Binary attribution measure            & $-0.0177$   & $<0.001$ \\
-\quad D-subtype recoded                     & $-0.0135$   & $0.001$ \\
-\quad Contested (E) excluded                & $-0.0135$   & $0.001$ \\
-\quad Post-2010 only                        & $-0.0149$   & $0.001$ \\
-\quad National-outlet articles only         & $-0.0308$   & $0.001$ \\
-\quad Local-outlet articles only            & $-0.0025$   & $0.689$ \\
-\quad Ordered logit                         & $-0.0850$   & $0.004$ \\
-\quad Ordered probit                        & $-0.0434$   & $0.006$ \\
-\quad $\times$ Year interaction             & $-0.00028$  & $0.611$ \\
-\midrule
-\multicolumn{3}{l}{\emph{Placebo checks (outlet lean predicting non-framing outcomes)}} \\
-\quad Word count                            & $-18.69$    & $0.075$ \\
-\quad log(Cost) of covered disaster          & $-0.012$    & $0.685$ \\
-\quad log(Deaths+1) of covered disaster      & $-0.034$    & $0.300$ \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}
-\small
-\item Notes: Year-trend checks are disaster-level OLS, robust (HC1) SE,
-except the ordered logit/probit rows, which are article-level (ordinal
-attribution category regressed on year, non-clustered MLE SE). Outlet-
-lean and placebo checks are article-level OLS, SE clustered by disaster
-(or within-disaster-demeaned with no intercept, for the fixed-effects
-row), except the ordered logit/probit and interaction rows (non-clustered
-MLE SE and clustered OLS, respectively -- see notebook for exact
-specifications). Full detail and code for every row in
-\texttt{code/Stage3\_Regressions.ipynb}, Section K.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
 
 \paragraph{Audit results.} All results in Section~\ref{sec:results} are
 estimated from the full-sample LLM coding pass. The independent post-hoc
@@ -1363,7 +1259,8 @@ The most robust finding in this paper is a steady upward trend in
 anthropogenic attribution framing: covered disasters average an
 Attribution Index of $-0.105$ before 2010 and $+0.057$ from 2010
 onward, a shift of more than 0.16 index points that persists under
-every robustness check we apply (Table~\ref{tab:robustness_summary}).
+every robustness check we apply (Appendix
+Table~\ref{tab:robustness_summary}).
 This timing aligns closely with the structural break identified by
 \citet{chinn2020}, who find using unsupervised text scaling (Wordfish)
 that partisan \emph{polarization} in U.S.\ climate news language was
@@ -1491,7 +1388,7 @@ Disaster type, CPI-adjusted cost, death toll, and duration are all
 statistically indistinguishable from zero in the disaster-level
 specification (Table~\ref{tab:main_results}), and a one-way ANOVA
 across the seven NOAA event types confirms no significant variation
-($F = 0.32$, $p = 0.93$; Table~\ref{tab:type_means}).  This null
+($F = 0.32$, $p = 0.93$; Appendix Table~\ref{tab:type_means}).  This null
 result on disaster type is consistent with \citet{boudet2020}, who
 find that even events with a high scientific attribution confidence
 score (such as extreme heat) do not reliably generate more
@@ -1791,7 +1688,121 @@ sheet of
 \href{https://github.com/Hariaksha/climate-disaster/blob/main/attribution.xlsx}{\texttt{attribution.xlsx}}.
 \end{sloppypar}
 
-\subsection{Additional Tables and Figures}
+\subsection{Additional Figures}
+
+The two figures below supplement the main-text discussion of the
+Attribution Index's cross-sectional distribution (Section~\ref{sec:results},
+Descriptive Patterns) and of the outlet political-lean result
+(Section~\ref{sec:outlet_results}, Variation by Outlet Characteristics).
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\textwidth]{figures/attribution_index_hist.pdf}
+\caption{Distribution of the Disaster-Level Attribution Index ($N=209$
+covered disasters). Vertical line at the mean ($0.028$); dotted line at
+zero. Discussed in Section~\ref{sec:results} alongside the year-trend
+result in Figure~\ref{fig:trend_over_time}.}
+\label{fig:index_hist}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.75\textwidth]{figures/outlet_lean_scatter.pdf}
+\caption{Outlet Political Lean vs.\ Article Attribution Score ($N=889$
+articles from individually-rated domains). Points are jittered on the
+$y$-axis for visibility, since the underlying score only takes four
+values ($-1, 0, 0.5, 1$); diamonds are means within 8 equal-width bins of
+Ad Fontes Bias score. Discussed in Section~\ref{sec:outlet_results}.}
+\label{fig:outlet_lean_scatter}
+\end{figure}
+
+\FloatBarrier
+\subsection{Additional Tables}
+
+The four tables below supplement the main-text discussion of variation by
+disaster type (Section~\ref{sec:results}), the outlet political-lean
+result (Section~\ref{sec:outlet_results}), and the full robustness battery
+(Section~\ref{sec:results_robustness}).
+
+\begin{table}[ht]
+\centering
+\caption{Mean Attribution Index by Disaster Type}
+\label{tab:type_means}
+\begin{threeparttable}
+\begin{tabular}{lcccc}
+\toprule
+Disaster Type & $N$ & Mean & Median & SD \\
+\midrule
+Severe Storm      & 89 & 0.005 & 0.000 & 0.236 \\
+Tropical Cyclone  & 45 & 0.055 & 0.022 & 0.113 \\
+Flooding          & 25 & 0.028 & 0.000 & 0.175 \\
+Drought           & 18 & 0.026 & 0.017 & 0.476 \\
+Wildfire          & 18 & 0.048 & 0.021 & 0.315 \\
+Winter Storm      & 12 & 0.074 & 0.000 & 0.148 \\
+Freeze            &  2 & 0.000 & 0.000 & 0.000 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item Notes: One-way ANOVA across the seven types: $F=0.32$, $p=0.93$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Robustness Check Summary}
+\label{tab:robustness_summary}
+\begin{threeparttable}
+\begin{tabular}{lcc}
+\toprule
+Check & Estimate & $p$-value \\
+\midrule
+\multicolumn{3}{l}{\emph{Year trend}} \\
+\quad Baseline                              & $0.0129$/yr & $<0.001$ \\
+\quad Binary attribution measure            & $0.0100$    & $<0.001$ \\
+\quad D-subtype recoded                     & $0.0102$    & $<0.001$ \\
+\quad Contested (E) excluded                & $0.0130$    & $<0.001$ \\
+\quad $N_d \geq 3$ only                     & $0.0112$    & $<0.001$ \\
+\quad National-outlet articles only         & $0.0174$    & $<0.001$ \\
+\quad Local-outlet articles only            & $0.0107$    & $0.007$ \\
+\quad Ordered logit                         & $0.1044$    & $<0.001$ \\
+\quad Ordered probit                        & $0.0546$    & $<0.001$ \\
+\midrule
+\multicolumn{3}{l}{\emph{Outlet political lean (Ad Fontes Bias score)}} \\
+\quad Baseline (multivariate, clustered SE) & $-0.0112$   & $0.013$ \\
+\quad Bivariate (no controls)               & $-0.0132$   & $0.002$ \\
+\quad Disaster fixed effects                & $-0.0115$   & $0.046$ \\
+\quad Binary attribution measure            & $-0.0177$   & $<0.001$ \\
+\quad D-subtype recoded                     & $-0.0135$   & $0.001$ \\
+\quad Contested (E) excluded                & $-0.0135$   & $0.001$ \\
+\quad Post-2010 only                        & $-0.0149$   & $0.001$ \\
+\quad National-outlet articles only         & $-0.0308$   & $0.001$ \\
+\quad Local-outlet articles only            & $-0.0025$   & $0.689$ \\
+\quad Ordered logit                         & $-0.0850$   & $0.004$ \\
+\quad Ordered probit                        & $-0.0434$   & $0.006$ \\
+\quad $\times$ Year interaction             & $-0.00028$  & $0.611$ \\
+\midrule
+\multicolumn{3}{l}{\emph{Placebo checks (outlet lean predicting non-framing outcomes)}} \\
+\quad Word count                            & $-18.69$    & $0.075$ \\
+\quad log(Cost) of covered disaster          & $-0.012$    & $0.685$ \\
+\quad log(Deaths+1) of covered disaster      & $-0.034$    & $0.300$ \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item Notes: Year-trend checks are disaster-level OLS, robust (HC1) SE,
+except the ordered logit/probit rows, which are article-level (ordinal
+attribution category regressed on year, non-clustered MLE SE). Outlet-
+lean and placebo checks are article-level OLS, SE clustered by disaster
+(or within-disaster-demeaned with no intercept, for the fixed-effects
+row), except the ordered logit/probit and interaction rows (non-clustered
+MLE SE and clustered OLS, respectively -- see notebook for exact
+specifications). Full detail and code for every row in
+\texttt{code/Stage3\_Regressions.ipynb}, Section K.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
 
 \begin{table}[ht]
 \centering
