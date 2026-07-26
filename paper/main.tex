@@ -284,7 +284,7 @@ climate change or to natural variability.  The two complement each
 other: polarization in language is a necessary but not sufficient
 condition for divergence in causal attribution.  \citet{chinn2020} also
 document that political actors outnumber scientists as quoted sources in
-climate coverage from 2006 onward, consistent with the supply-side
+climate coverage from 2006 onward, in line with the supply-side
 political-economy mechanism we revisit in the outlet-lean analysis
 (Section~\ref{sec:outlet_results}).
 
@@ -318,7 +318,7 @@ Political orientation also moderates the effects of education and
 self-reported understanding: greater knowledge and education increase
 climate concern among liberals and Democrats, but the same effects are
 weaker or even negative among conservatives and Republicans --- a
-pattern consistent with biased information processing, in which new
+pattern that fits biased information processing, in which new
 climate information is filtered through pre-existing partisan
 commitments rather than updating beliefs uniformly.  All eight
 political orientation $\times$ year interaction terms are statistically
@@ -338,7 +338,7 @@ which politicians make explicit attribution claims.  These results imply
 a political-economy constraint on attribution language: political actors
 face differential electoral incentives to link extreme events to climate
 change, and those incentives vary by party and constituency.  This
-mechanism is consistent with the partisan outlet-lean gradient we
+mechanism echoes the partisan outlet-lean gradient we
 document at the media level.
 
 \subsection*{Economics of Natural Disasters, Salience, and Policy}
@@ -397,8 +397,8 @@ in which those experiences are interpreted.
 \subsection*{Text as Data and NLP Methods in Economics}
 
 The methodological approach of this paper --- using a large language
-model to classify natural language text at scale --- sits within a
-growing economics literature on text-as-data methods.
+model to classify natural language text at scale --- sits within an
+expanding economics literature on text-as-data methods.
 \citet{gentzkow2019} provide a comprehensive survey of this literature,
 organizing it around a three-step framework: (i)~represent text as a
 numerical array (via bag-of-words, embeddings, or model outputs);
@@ -1214,8 +1214,9 @@ and significance rather than directly comparable to the clustered-SE
 results elsewhere in this section.}
 \end{sloppypar}
 
-\paragraph{Year $\times$ outlet-lean interaction.} Has the political-lean
-gap in framing widened or narrowed over the sample period? Adding an
+\paragraph{Year $\times$ outlet-lean interaction.} Whether the
+political-lean gap in framing has widened or narrowed over the sample
+period is a separate question from its average magnitude. Adding an
 $\text{OutletLean}_i \times \text{Year}_d$ interaction term to the
 article-level model, the interaction is not statistically significant
 either alone ($\beta=-0.00028$, $p=0.61$) or with the full set of controls
@@ -1286,8 +1287,8 @@ five years, and that together with \citet{chinn2020}'s structural break
 in 2010--2011 traces a coherent timeline from the balance-norm era to
 the present.
 
-What drove the post-2010 shift?  This paper identifies the \emph{when}
-more cleanly than the \emph{why}, and several mechanisms are plausible.
+This paper identifies the \emph{when} of the post-2010 shift more
+cleanly than the \emph{why}; several mechanisms are plausible.
 First, the scientific literature on extreme-event attribution expanded
 substantially after roughly 2011, when formal attribution science
 (asking whether anthropogenic forcing changed the probability of a
@@ -1431,29 +1432,21 @@ rising trend post-2010, and a partisan lean gradient concentrated in
 national coverage --- has several implications for the larger research
 programs on disaster risk perception and preparedness.
 
-\citet{gallagher2014} shows that media coverage of flood events
-materially shifts insurance take-up, both in directly affected areas
-(9\% spike) and in non-affected communities in the same television
-media market (one-third of the direct effect).  Critically, he finds
-that this salience channel operates at the same magnitude for high-
-and low-cost floods --- the dollar size of the event does not drive the
-risk-learning response, the coverage does.  If attribution framing
-further shapes the mechanism through which risk is perceived (is this
-disaster a precedent for future events, or a one-off?), then the
+This complements \citet{gallagher2014}'s finding that the salience
+channel from flood coverage to insurance take-up operates at the same
+magnitude regardless of the disaster's dollar cost.  If attribution
+framing further shapes how risk is perceived -- whether a disaster
+reads as a precedent for future events or as a one-off -- then the
 near-zero and historically non-anthropogenic framing we document for
 most of the sample period may have dampened the longer-run risk
 signaling that coverage could otherwise have provided.
 
-\citet{magontier2020} finds a related result on the policy side: a
-one-standard-deviation increase in storm media coverage is associated
-with 54\% more FEMA hazard mitigation projects in the affected area,
-consistent with a risk-signaling channel from coverage to government
-preparedness investment.  Whether the \emph{content} of coverage ---
-natural-variability framing versus anthropogenic framing --- modulates
-the direction or magnitude of this preparedness response is an
-important open question our paper motivates but cannot answer directly,
-since it would require the mitigation-project data to be crossed with
-article-level attribution codes at the event level.
+This complements \citet{magontier2020}'s finding that storm coverage
+\emph{volume} drives FEMA hazard-mitigation investment: whether coverage
+\emph{content} --- natural-variability framing versus anthropogenic
+framing --- independently modulates that preparedness response remains
+untested, since it would require the mitigation-project data to be
+crossed with article-level attribution codes at the event level.
 
 At the individual level, \citet{egan2012} document that personal
 exposure to anomalously high local temperatures increases the
@@ -1509,9 +1502,9 @@ climate-framing decision specifically.
 \section{Conclusion}
 % ===================================================================
 
-This paper constructs the first systematic, large-scale measure of how
-U.S.\ newspapers frame the causal origins of billion-dollar climate
-disasters.  Using an LLM-based coding pipeline validated against an
+No prior study has systematically measured how U.S.\ newspapers frame
+the causal origins of billion-dollar climate disasters at scale; this
+paper does so.  Using an LLM-based coding pipeline validated against an
 independent human audit ($\kappa = 0.96$ for Relevance,
 $\kappa_w = 0.96$--$0.98$ for Attribution), we assign each of 1,252
 Relevant articles --- collected across all 313 NOAA billion-dollar
@@ -1520,48 +1513,44 @@ categories ranging from explicit anthropogenic framing ($+1$) to
 explicit non-climate framing ($-1$), and aggregate these to a
 disaster-level Attribution Index.
 
-Three findings stand out.  First, the dominant mode of coverage is
-silence on causation: 74.8\% of Relevant articles contain no causal
-attribution at all (category C), and the mean disaster-level
-Attribution Index is only 0.028 --- statistically above zero but
-economically near the neutral midpoint.  The picture that emerges is
-not one of a media landscape polarized between climate advocates and
-climate skeptics, but of one in which the large majority of disaster
-coverage simply does not engage the question of cause.
+Three findings stand out.  First, silence is the modal outcome: 74.8\%
+of Relevant articles contain no causal claim about a disaster's origin
+(category C), leaving the mean disaster-level Attribution Index at just
+0.028 --- statistically distinguishable from zero but economically
+close to it.  This is not a media environment split between climate
+advocates and skeptics; it is one in which most disaster coverage
+simply avoids the question of cause.
 
-Second, the level of attribution framing has risen steadily over the
-sample period, at a rate of approximately 0.013 index points per year
-($p < 0.001$), with a particularly sharp shift centered on 2010.  This
-timing coincides with the discrete structural break in partisan climate
-discourse identified by \citet{chinn2020}, and is robust to every
-functional-form and sample-restriction check we apply.  By the end of
-the sample, average coverage has moved from net-negative (implying mild
-non-climate framing in aggregate) to modestly net-positive, though the
-dominant category remains pure event reporting.
+Second, the trend runs in one direction: coverage has grown steadily
+more willing to name a cause, adding roughly 0.013 index points a year
+($p < 0.001$) and moving from a net-negative mean before 2010 to a
+net-positive one after --- a shift that lines up with the 2010--2011
+structural break \citet{chinn2020} document in partisan climate
+discourse, and that survives every functional-form and
+sample-restriction check we run.  Even by the end of the sample, though,
+pure event reporting remains the dominant category.
 
-Third, outlet political lean is a significant predictor of attribution
-framing.  Articles from more right-leaning outlets (by Ad Fontes Bias
-score) receive lower Attribution Index values ($\hat\beta = -0.011$
-per Bias-score point, $p = 0.013$, clustered SE), a result that
-survives disaster fixed effects, both lean-rating services, all
-attribution-measure variants, and an ordered-logit functional-form
-check.  The effect is concentrated in national and wire-service
-coverage and is not statistically detectable in the local-outlet
-subsample, though the local subsample is small enough that power rather
-than a true zero cannot be ruled out.  Notably, the political-lean gap
-has not widened or narrowed over the sample period: the year $\times$
-lean interaction is not significant, suggesting that the ideological
-gradient in attribution framing has been stable even as the overall
-level has risen.
+Third, who publishes the coverage matters: more right-leaning outlets
+(by Ad Fontes Bias score) systematically produce lower Attribution
+Index values ($\hat\beta = -0.011$ per Bias-score point, $p = 0.013$,
+clustered SE).  The gradient holds up against disaster fixed effects,
+both lean-rating services, every attribution-measure variant, and an
+ordered-logit functional-form check, but it is concentrated in national
+and wire-service coverage and is not statistically detectable among
+local outlets, where the subsample is small enough that limited power
+cannot be ruled out.  The gap itself has neither widened nor narrowed
+over the sample period: the year $\times$ lean interaction is not
+significant, so whatever generates the ideological gradient appears to
+have held steady even as overall attribution framing rose.
 
-In contrast, none of the disaster's own physical characteristics ---
-type, CPI-adjusted cost, death toll, duration, coastal geography, or
-political lean of affected states --- predict how its coverage frames
-causation.  This null result on disaster characteristics implies that
-the temporal and outlet-level patterns we identify are not composition
-artifacts: it is not that the mix of events changed after 2010 in a way
-that mechanically increased attribution framing, nor that right-leaning
-outlets happen to cover less climate-salient disasters.
+None of this traces back to what actually happened on the ground:
+disaster type, CPI-adjusted cost, death toll, duration, coastal
+geography, and the political lean of affected states are all
+uninformative about how coverage frames causation.  That null result
+matters methodologically --- it rules out composition as the driver of
+the patterns above: the mix of events did not shift after 2010 in a way
+that would mechanically raise attribution framing, and right-leaning
+outlets are not simply covering less climate-salient disasters.
 
 \paragraph{Contributions.}  The paper makes three contributions.
 Methodologically, it demonstrates that a carefully validated LLM coding
