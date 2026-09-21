@@ -3,6 +3,10 @@ __pycache__/
 .DS_Store
 .venv/
 *.bak
+
+# Search-run resume state; regenerated on each run, superseded by the
+# run's own output CSV once it completes.
+*checkpoint*.csv
 *.aux
 *.log
 *.out
