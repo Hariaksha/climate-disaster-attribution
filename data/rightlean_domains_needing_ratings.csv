@@ -1,10 +1,10 @@
-Domain,Articles,Ad Fontes Rating,AllSides Rating,Notes
-washingtontimes.com,29,,,
-newsmax.com,19,,,
-washingtonexaminer.com,13,,,
-nationalreview.com,10,,,
-breitbart.com,6,,,
-dailycaller.com,4,,,
-theepochtimes.com,4,,,
-dailywire.com,2,,,
-redstate.com,1,,,
+Domain,Articles,Ad Fontes Rating,Ad Fontes Bias Score,AllSides Rating,AllSides Numeric,Notes
+washingtontimes.com,29,"Skews Right / Mixed Reliability-Opinion OR Other Issues (Bias +11.60, Reliability 31.31)",11.6,"Lean Right (+2.00 on -6..+6 scale, medium confidence)",2.0,Ad Fontes + AllSides retrieved 2026-09-21
+newsmax.com,19,"Strong Right / Mixed Reliability-Opinion OR Other Issues (Bias +13.38, Reliability 28.34)",13.38,"Right (+3.05 on -6..+6 scale, medium confidence)",3.05,Ad Fontes + AllSides retrieved 2026-09-21; News rating; AllSides rates Newsmax News and Opinion separately
+washingtonexaminer.com,13,"Skews Right / Generally Reliable-Analysis OR Other Issues (Bias +11.15, Reliability 34.19)",11.15,"Lean Right (+2.30 on -6..+6 scale, high confidence)",2.3,Ad Fontes + AllSides retrieved 2026-09-21
+nationalreview.com,10,"Strong Right / Mixed Reliability-Opinion OR Other Issues (Bias +12.63, Reliability 31.38)",12.63,"Lean Right (+2.50 on -6..+6 scale, high confidence)",2.5,Ad Fontes + AllSides retrieved 2026-09-21; News rating; AllSides rates NR News and Opinion separately
+breitbart.com,6,"Strong Right / Mixed Reliability-Opinion OR Other Issues (Bias +13.56, Reliability 30.42)",13.56,"Right (+6.00 on -6..+6 scale, low/initial confidence)",6.0,Ad Fontes + AllSides retrieved 2026-09-21
+dailycaller.com,4,"Strong Right / Generally Reliable-Analysis OR Other Issues (Bias +12.80, Reliability 34.42)",12.8,"Right (+2.67 on -6..+6 scale, high confidence)",2.67,Ad Fontes + AllSides retrieved 2026-09-21
+theepochtimes.com,4,"Skews Right / Generally Reliable-Analysis OR Other Issues (Bias +8.19, Reliability 35.37)",8.19,"Lean Right (+1.10 on -6..+6 scale, medium confidence)",1.1,Ad Fontes + AllSides retrieved 2026-09-21
+dailywire.com,2,"Strong Right / Mixed Reliability-Opinion OR Other Issues (Bias +13.22, Reliability 30.39)",13.22,"Right (+3.50 on -6..+6 scale, high confidence)",3.5,Ad Fontes + AllSides retrieved 2026-09-21
+redstate.com,1,"Hyper-Partisan Right / Unreliable, Problematic (Bias +21.20, Reliability 21.13)",21.2,"Right (+4.00 on -6..+6 scale, low/initial confidence)",4.0,Ad Fontes + AllSides retrieved 2026-09-21
