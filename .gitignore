@@ -7,6 +7,10 @@ __pycache__/
 # Search-run resume state; regenerated on each run, superseded by the
 # run's own output CSV once it completes.
 *checkpoint*.csv
+
+# Timestamped workbook backups taken before destructive edits; the
+# committed history already serves as the recoverable copy.
+attribution_backup_*.xlsx
 *.aux
 *.log
 *.out
