@@ -36,14 +36,56 @@ from datetime import datetime
 # ── Config ────────────────────────────────────────────────────────────────────
 WORKBOOK_PATH = '/Users/hariaksha/Documents/GitHub/climate-disaster/attribution.xlsx'
 SHEET_NAME    = 'Master'
-URL_COL          = 12  # Column L: original article URL
-TEXT_COL         = 19  # Column S: Full Article Text
-ARCHIVE_URL_COL  = 20  # Column T: Wayback Machine snapshot URL
-ARCHIVE_STATUS_COL = 21  # Column U: 'found' / 'needs_factiva' / 'failed'
-WORD_COUNT_COL   = 22  # Column V: extracted word count
+# Column positions are resolved from the Master header row at import time,
+# not hardcoded. They were hardcoded (19/20/21/22) until the LLM-coding
+# columns were inserted, which pushed these five slots to the right and left
+# the constants pointing at Contested / LLM Rationale / National Newspaper /
+# Calibration Sample -- writing article text into those would have destroyed
+# coded data on every row. Resolving by header name means a future column
+# insertion cannot reintroduce that.
+def _resolve_columns():
+    wb = openpyxl.load_workbook(WORKBOOK_PATH, read_only=True)
+    header = [c.value for c in next(wb[SHEET_NAME].iter_rows(max_row=1))]
+    wb.close()
+    wanted = {
+        'URL_COL': 'URL',
+        'RELEVANCE_COL': 'Relevance',
+        'TEXT_COL': 'Full Article Text',
+        'ARCHIVE_URL_COL': 'Archive URL',
+        'ARCHIVE_STATUS_COL': 'Archive Status',
+        'WORD_COUNT_COL': 'Word Count',
+    }
+    out = {}
+    for const, name in wanted.items():
+        if name not in header:
+            raise SystemExit(f"Master sheet has no '{name}' column; aborting "
+                             f"rather than writing to a guessed position.")
+        out[const] = header.index(name) + 1
+    return out
+
+_COLS = _resolve_columns()
+URL_COL            = _COLS['URL_COL']
+RELEVANCE_COL      = _COLS['RELEVANCE_COL']
+TEXT_COL           = _COLS['TEXT_COL']
+ARCHIVE_URL_COL    = _COLS['ARCHIVE_URL_COL']
+ARCHIVE_STATUS_COL = _COLS['ARCHIVE_STATUS_COL']
+WORD_COUNT_COL     = _COLS['WORD_COUNT_COL']
 
 MIN_WORDS = 150   # below this, treat as a paywall stub / teaser, not a real article
-MIN_WORDS_NPR_TRANSCRIPT = 30  # NPR's official transcripts are authoritative even if short
+# NPR's /transcripts/{id} endpoint was given a much lower floor than MIN_WORDS
+# on the reasoning that an official transcript is authoritative even when
+# short. In practice the endpoint mostly serves a two-sentence *abstract* of an
+# audio segment ("NPR's Noah Adams speaks with NPR's Adam Hochberg ... on the
+# damage caused by Hurricane Ivan"), not a transcript. At 45-80 words that is a
+# summary, not an article: it cannot express attribution framing, so it codes C
+# by construction and inflates the no-causal-claim share.
+#
+# The old value also made the pipeline self-contradictory -- an 80-word Capital
+# Gazette stub was rejected as paywalled while a 52-word NPR abstract was
+# accepted as full text in the same run. Genuine transcripts run to thousands
+# of words and clear the normal floor easily, so the special case now only
+# buys a modest allowance rather than a different standard.
+MIN_WORDS_NPR_TRANSCRIPT = 150
 NPR_ID_PATTERN = re.compile(r'npr\.org/(?:[^/]+/){0,4}?(\d{5,})(?:/|$)')
 CNN_FILEID_PATTERN = re.compile(r'transcripts\.cnn\.com/show/([a-z]+)\??.*start_fileid=([a-z]+)_(\d{4}-\d{2}-\d{2})_(\d+)')
 
@@ -51,6 +93,7 @@ DELAY_CHECK  = 1.5   # seconds between availability checks
 DELAY_FETCH  = 1.0   # seconds between snapshot fetches
 DELAY_SAVE_WAIT = 8  # seconds to wait after submitting Save Page Now
 MAX_RETRIES  = 2
+SAVE_EVERY   = 25    # rows between workbook saves (see the save block in main)
 
 CONSEC_FAIL_THRESHOLD = 8
 BACKOFF_SCHEDULE = [60, 180, 300]   # 1, 3, 5 minutes — WBM is much gentler than archive.ph
@@ -155,6 +198,42 @@ def fetch_and_extract(snapshot_url: str, session: requests.Session):
         return '', 0
 
 
+CHROME_MAX_WORDS = 400   # above this an extraction is real content, never player chrome
+
+PLAYER_CHROME_MARKERS = (
+    'toggle more options',
+    'iframe src=',
+    'npr embedded audio player',
+    'download embed',
+)
+
+
+def is_player_chrome(text: str) -> bool:
+    """
+    True when an extraction is audio-player furniture rather than a transcript.
+
+    NPR serves /transcripts/{id} for audio-only segments that have no written
+    transcript. trafilatura then returns the player controls -- "Listen Toggle
+    more options Download Embed <iframe src=...> Facebook Flipboard Email",
+    usually duplicated -- which can exceed MIN_WORDS_NPR_TRANSCRIPT and be
+    accepted as an article. Length alone cannot separate that from a genuine
+    short transcript, so match on the markup instead.
+    """
+    if not text:
+        return True
+    # Player chrome is inherently short -- it is the controls around a missing
+    # transcript. Anything substantial is real content, so it is exempt: a
+    # genuine transcript can legitimately contain the word "embed" or quote an
+    # iframe, and lexical-diversity tests reject real transcripts outright
+    # (speaker names and filler words repeat heavily across thousands of
+    # words), so length is the reliable discriminator here.
+    words = text.split()
+    if len(words) > CHROME_MAX_WORDS:
+        return False
+    low = text.lower()
+    return sum(marker in low for marker in PLAYER_CHROME_MARKERS) >= 2
+
+
 def try_npr_transcript(original_url: str, session: requests.Session):
     """
     For npr.org URLs where the article page is a short teaser, NPR often has
@@ -183,7 +262,7 @@ def try_npr_transcript(original_url: str, session: requests.Session):
 
     if snap_url:
         text, wc = fetch_and_extract(snap_url, session)
-        if wc >= MIN_WORDS_NPR_TRANSCRIPT:
+        if wc >= MIN_WORDS_NPR_TRANSCRIPT and not is_player_chrome(text):
             return snap_url, text, wc
     return None, '', 0
 
@@ -226,6 +305,24 @@ def process_url(url: str, session: requests.Session) -> tuple:
     """
     global consecutive_failures, backoff_level
     rl_used = 0
+
+    # Step 0: legacy transcripts.cnn.com URLs must be rewritten BEFORE anything
+    # is fetched. The ?start_fileid= format is dead and serves a generic
+    # chronological index of every episode of the show -- thousands of words of
+    # unrelated segment titles. That sails past MIN_WORDS, so fetching the
+    # legacy URL first returns 'found' on an index page and the modern-URL
+    # fallback below is never reached. Converting up front means these rows
+    # either get the real segment transcript or are correctly rejected; they
+    # can no longer be silently filled with an index page.
+    if CNN_FILEID_PATTERN.search(url):
+        cnn_snap, cnn_text, cnn_wc = try_cnn_modern_url(url, session)
+        if cnn_snap:
+            consecutive_failures = 0
+            return cnn_snap, 'found', cnn_text, cnn_wc
+        # Conversion failed: do NOT fall through to fetching the legacy URL,
+        # which would capture the index page. This is the 'wrong segment'
+        # condition the corpus already records for these URLs.
+        return None, 'trash_wrong_segment', '', 0
 
     # Step 1: check existing snapshot
     snap_url, rate_limited = check_existing(url, session)
@@ -283,6 +380,22 @@ def process_url(url: str, session: requests.Session) -> tuple:
         consecutive_failures = 0
         return cnn_snap, 'found', cnn_text, cnn_wc
 
+    # Last resort: fetch the live page directly. Everything above goes through
+    # the Wayback Machine, so a freely-readable article whose URL simply has no
+    # snapshot -- and which Save Page Now could not capture -- was being given
+    # up on without ever being requested from its own server. Many outlets in
+    # this corpus (deseret.com, carsonnow.org, newsmax.com, nationalreview.com)
+    # serve full article text to an ordinary request, and metered paywalls
+    # commonly serve it too. The MIN_WORDS floor still applies, so a hard
+    # paywall's teaser is rejected here exactly as it is for a snapshot.
+    direct_text, direct_wc = fetch_and_extract(url, session)
+    if direct_wc >= MIN_WORDS and not is_player_chrome(direct_text):
+        consecutive_failures = 0
+        backoff_level = max(0, backoff_level - 1)
+        # No snapshot URL to record: the text came from the live page, which is
+        # worth distinguishing from an archived capture when tracing provenance.
+        return None, 'found', direct_text, direct_wc
+
     if snap_url:
         # We had an old stub snapshot but couldn't save a better one
         return snap_url, 'needs_factiva', '', 0
@@ -316,6 +429,7 @@ def main():
     needs_factiva = 0
     failed = 0
     skipped = 0
+    pending_since_save = 0
 
     start_time = datetime.now()
     print(f'Starting at {start_time.strftime("%H:%M:%S")} — {total_rows} articles to process\n')
@@ -331,10 +445,29 @@ def main():
             skipped += 1
             continue
 
-        if existing_status in ('found', 'needs_factiva', 'trash_gallery'):
+        # Work is driven by whether the row actually has article text, not by
+        # its status label: a row whose text is empty still needs retrieving
+        # whatever its status says, and a row that already has text must not
+        # be re-fetched even if its status was never set.
+        #
+        # 'trash_gallery' is the one status that still short-circuits. Those
+        # rows are photo/video gallery pages with no article text to extract
+        # -- that is a deliberate classification, not a retrieval failure, and
+        # re-running them would overwrite it with 'failed' and lose a
+        # distinction the paper reports.
+        existing_text = ws.cell(row=row_idx, column=TEXT_COL).value
+        has_text = existing_text is not None and str(existing_text).strip() != ''
+
+        # Rows already coded Trash are out of the corpus, so retrieving their
+        # text is wasted network time -- llm_coder.py will never read it. This
+        # covers the transcripts.cnn.com rows excluded as television, and any
+        # other row the coder has already rejected.
+        already_trash = str(ws.cell(row=row_idx, column=RELEVANCE_COL).value or '') == 'Trash'
+
+        if has_text or already_trash or existing_status == 'trash_gallery':
             skipped += 1
             if article_num % 100 == 0:
-                print(f'[{article_num:4d}/{total_rows}] ... skipping already-processed rows ...')
+                print(f'[{article_num:4d}/{total_rows}] ... skipping rows that already have text ...')
             continue
 
         print(f'[{article_num:4d}/{total_rows}] Processing | {title[:60]}')
@@ -354,7 +487,17 @@ def main():
         ws.cell(row=row_idx, column=WORD_COUNT_COL).value = wc
         if status == 'found':
             ws.cell(row=row_idx, column=TEXT_COL).value = text[:32000]  # Excel cell limit safety
-        wb.save(WORKBOOK_PATH)
+
+        # Save periodically rather than after every row. Master is now ~2,400
+        # rows carrying ~4,900 formulas, so a full workbook write costs more
+        # than the network round trip it was protecting; at one save per row
+        # the I/O dominates the run. A crash still loses at most SAVE_EVERY
+        # rows, which the text-presence check re-queues on the next run.
+        pending_since_save += 1
+        if pending_since_save >= SAVE_EVERY:
+            wb.save(WORKBOOK_PATH)
+            pending_since_save = 0
+            print(f'      [saved workbook]')
 
         if status == 'found':
             found += 1
@@ -371,6 +514,11 @@ def main():
 
         print()
         time.sleep(DELAY_CHECK)
+
+    # Flush whatever the last partial batch wrote.
+    if pending_since_save:
+        wb.save(WORKBOOK_PATH)
+        print(f'[saved workbook — final flush of {pending_since_save} row(s)]\n')
 
     elapsed = datetime.now() - start_time
     print('=' * 60)
