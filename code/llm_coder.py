@@ -351,7 +351,7 @@ def main():
         if ws.cell(row=1, column=col).value != header:
             ws.cell(row=1, column=col).value = header
 
-    # Relabel the existing numeric-score column to match the codebook's/
+    # Relabel the existing numeric-score column to match the codebook's
     # Calibration sheet's terminology -- it holds the article-level
     # Attribution Score, not the disaster-level Attribution Index (that
     # name is reserved for the aggregated AttributionIndex_d in the
