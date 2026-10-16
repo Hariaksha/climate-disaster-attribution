@@ -58,38 +58,103 @@ TEST_MODE_ROWS = 5
 MAX_RETRIES = 5
 BASE_BACKOFF_SECONDS = 2.0
 
-# Master sheet column indices (1-based, matches attribution.xlsx header row).
-# NOTE: these were reordered in the spreadsheet so the attribution columns
-# sit next to Relevance/Attribution Score for readability -- if you reorder
-# columns again, update this block to match (or this script will write into
-# the wrong columns).
-COL_DISASTER_ROW = 1
-COL_ARTICLE_NUM = 2
-COL_NAME = 3
-COL_DISASTER_TYPE = 4
-COL_BEGIN_DATE = 5
-COL_END_DATE = 6
-COL_STATES = 10
-COL_URL = 12
-COL_TITLE = 13
-COL_RELEVANCE = 15
-COL_ATTRIBUTION_SCORE = 16
-COL_ATTRIBUTION_CATEGORY = 17
-COL_D_SUBTYPE = 18
-COL_CONTESTED = 19
-COL_LLM_RATIONALE = 20
-COL_NATIONAL_NEWSPAPER = 21
-COL_CALIBRATION_SAMPLE = 22
-COL_FULL_TEXT = 23
-COL_ARCHIVE_URL = 24
-COL_ARCHIVE_STATUS = 25
-COL_WORD_COUNT = 26
+# Master sheet columns, looked up by header text at startup.
+#
+# These used to be hardcoded indices. The sibling retrieval script
+# (archive.py) did the same and its constants went stale when the attribution
+# columns were inserted, shifting everything after them five places right --
+# it would have written article text into Contested and status into National
+# Newspaper on every row it touched. Nothing detects that: the writes succeed
+# and land on coded data. Reading the header row costs one pass and removes
+# the failure mode.
+#
+# Each entry is (accepted header names, fallback index). The fallback is used
+# only when no listed name is in the header row, which is how the four
+# attribution columns get created on a workbook that does not have them yet
+# (see NEW_COLUMN_HEADERS below).
+COLUMN_SPEC = {
+    "COL_DISASTER_ROW": (("Disaster Row #",), 1),
+    "COL_ARTICLE_NUM": (("Article #",), 2),
+    "COL_NAME": (("Name",), 3),
+    "COL_DISASTER_TYPE": (("Disaster Type",), 4),
+    "COL_BEGIN_DATE": (("Begin Date",), 5),
+    "COL_END_DATE": (("End Date",), 6),
+    "COL_STATES": (("States",), 10),
+    "COL_URL": (("URL",), 12),
+    "COL_TITLE": (("Title",), 13),
+    "COL_RELEVANCE": (("Relevance",), 15),
+    # "Attribution Index" is the pre-rename header for this column; main()
+    # relabels it to "Attribution Score" on the way through.
+    "COL_ATTRIBUTION_SCORE": (("Attribution Score", "Attribution Index"), 16),
+    "COL_ATTRIBUTION_CATEGORY": (("Attribution Category",), 17),
+    "COL_D_SUBTYPE": (("D-Subtype",), 18),
+    "COL_CONTESTED": (("Contested",), 19),
+    "COL_LLM_RATIONALE": (("LLM Rationale",), 20),
+    "COL_NATIONAL_NEWSPAPER": (("National Newspaper",), 21),
+    "COL_CALIBRATION_SAMPLE": (("Calibration Sample",), 22),
+    "COL_FULL_TEXT": (("Full Article Text",), 23),
+    "COL_ARCHIVE_URL": (("Archive URL",), 24),
+    "COL_ARCHIVE_STATUS": (("Archive Status",), 25),
+    "COL_WORD_COUNT": (("Word Count",), 26),
+}
 
+CALIBRATION_URL_HEADERS = ("URL",)
+CALIBRATION_URL_FALLBACK = 8
+
+
+def resolve_columns(header_row, spec, sheet_name):
+    """Map each column name to its 1-based index in this header row."""
+    lookup, seen_twice = {}, set()
+    for idx, value in enumerate(header_row, 1):
+        if value is None:
+            continue
+        name = str(value).strip()
+        if name in lookup:
+            seen_twice.add(name)
+        else:
+            lookup[name] = idx
+
+    # A repeated header is not fatal -- the first occurrence wins, which is
+    # deterministic -- but it is worth saying out loud, since the duplicate is
+    # usually a stray copy and the wrong one could be the first.
+    wanted = {n for names, _ in spec.values() for n in names}
+    for name in sorted(seen_twice & wanted):
+        print(f"{sheet_name}: header {name!r} appears more than once; "
+              f"using column {lookup[name]}.")
+
+    resolved, from_fallback = {}, []
+    for const, (names, fallback) in spec.items():
+        for name in names:
+            if name in lookup:
+                resolved[const] = lookup[name]
+                break
+        else:
+            resolved[const] = fallback
+            from_fallback.append(f"{const}={fallback}")
+
+    clashes = [c for c, i in resolved.items()
+               if list(resolved.values()).count(i) > 1]
+    if clashes:
+        raise SystemExit(
+            f"{sheet_name}: two columns resolved to the same index "
+            f"({', '.join(sorted(clashes))}). Check the header row for "
+            f"duplicate or missing names rather than letting the run "
+            f"overwrite the wrong column."
+        )
+
+    if from_fallback:
+        print(f"{sheet_name}: no header found for "
+              f"{', '.join(from_fallback)} -- using default position(s).")
+    return resolved
+
+# Columns this script is responsible for creating if the workbook predates
+# them. Keyed by the constant rather than an index, since the index is only
+# known once the header row has been read.
 NEW_COLUMN_HEADERS = {
-    COL_ATTRIBUTION_CATEGORY: "Attribution Category",
-    COL_D_SUBTYPE: "D-Subtype",
-    COL_CONTESTED: "Contested",
-    COL_LLM_RATIONALE: "LLM Rationale",
+    "COL_ATTRIBUTION_CATEGORY": "Attribution Category",
+    "COL_D_SUBTYPE": "D-Subtype",
+    "COL_CONTESTED": "Contested",
+    "COL_LLM_RATIONALE": "LLM Rationale",
 }
 
 CATEGORY_TO_SCORE = {"A": 1.0, "B": 0.5, "C": 0.0, "D": -1.0, "E": 0.0}
@@ -284,8 +349,21 @@ def main():
     ws = wb["Master"]
     cal = wb["Calibration"]
 
+    # Locate every column by its header before touching anything.
+    cols = resolve_columns(
+        [c.value for c in next(ws.iter_rows(max_row=1))], COLUMN_SPEC, "Master"
+    )
+    globals().update(cols)
+
+    cal_url_col = resolve_columns(
+        [c.value for c in next(cal.iter_rows(max_row=1))],
+        {"COL_CAL_URL": (CALIBRATION_URL_HEADERS, CALIBRATION_URL_FALLBACK)},
+        "Calibration",
+    )["COL_CAL_URL"]
+
     # Ensure new column headers exist
-    for col, header in NEW_COLUMN_HEADERS.items():
+    for const, header in NEW_COLUMN_HEADERS.items():
+        col = cols[const]
         if ws.cell(row=1, column=col).value != header:
             ws.cell(row=1, column=col).value = header
 
@@ -298,7 +376,7 @@ def main():
     # the calibration gate already covers them.
     calibration_urls = set()
     for r in range(2, cal.max_row + 1):
-        u = cal.cell(row=r, column=8).value  # Calibration col H = URL
+        u = cal.cell(row=r, column=cal_url_col).value
         if u:
             calibration_urls.add(u.strip())
 
