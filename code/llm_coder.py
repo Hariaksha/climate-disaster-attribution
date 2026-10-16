@@ -1,88 +1,26 @@
 """
-Phase 2 — Full-sample LLM coding of Master sheet articles.
+Phase 2 -- LLM coding of the Master sheet.
 
-Calls Claude Sonnet 4.6 on every row in the `Master` sheet of attribution.xlsx
-that:
-  - has Archive Status == "found" (i.e. has Full Article Text), AND
-  - is not already one of the 50 rows hand-coded in the `Calibration` sheet
-    (matched by URL, since calibration already cleared the reliability gate
-    -- see paper/attribution_codebook.md, Calibration & Validation Procedure),
-    AND
-  - does not already have a Relevance code in Master (so the script is
-    resume-safe: re-running it only codes rows that are still blank).
+Codes every Master row that has retrieved article text (Archive Status
+"found"), is not one of the 50 rows hand-coded in the Calibration sheet, and
+has no Relevance code yet. That last condition makes the script resume-safe:
+re-running it only picks up rows still blank.
 
-For each selected row it asks the model to apply the two-step procedure from
-paper/attribution_codebook.md:
-  1. Relevance screening -> Relevant / Borderline / Trash
-  2. Attribution coding (Relevant only) -> category A-E, plus the auxiliary
-     D-subtype and Contested (E-flag) tags
+Each article gets the two-step procedure from paper/attribution_codebook.md --
+relevance screening (Relevant / Borderline / Trash), then attribution coding
+for Relevant rows (category A-E, plus the D-subtype and Contested tags).
 
-Results are written back into the Master sheet (column layout as of the
-current Master header row -- Attribution Category/D-Subtype/Contested/LLM
-Rationale sit right next to Relevance/Attribution Score, pushing National
-Newspaper/Calibration Sample/Full Article Text/Archive URL/Archive
-Status/Word Count five slots to the right of where they used to be):
-  - col O (15) Relevance              -- existing column
-  - col P (16) Attribution Score       -- existing column (header relabeled
-                                          from "Attribution Index" to match
-                                          codebook/Calibration terminology --
-                                          "Attribution Index" is reserved for
-                                          the disaster-level aggregate in the
-                                          `All Disasters` sheet). Holds the
-                                          NUMERIC score (-1, 0, 0.5, 1),
-                                          because the existing `All
-                                          Disasters` AVERAGEIFS formula over
-                                          Master!P already assumes this
-                                          column is numeric. Written as a
-                                          literal value, not an Excel
-                                          formula -- the Calibration sheet's
-                                          formula-based score column
-                                          (=IF(category="A",1,...)) only
-                                          shows a value once Excel has
-                                          actually recalculated it, which
-                                          makes it unreadable to any script
-                                          that opens the workbook with
-                                          openpyxl(data_only=True) before
-                                          that happens (confirmed first-hand
-                                          on this workbook -- see kappa
-                                          calculation note). A literal value
-                                          computed once, from the same code
-                                          path that writes the category, is
-                                          always in sync and always
-                                          readable. Left blank for
-                                          Borderline/Trash, matching the
-                                          codebook ("only Relevant articles
-                                          receive an attribution code").
-  - col Q (17) Attribution Category   -- NEW. The letter A-E itself -- the
-                                          primary/source value; Attribution
-                                          Score above is mechanically derived
-                                          from it in the same write step, so
-                                          the mapping is auditable and so
-                                          Cohen's kappa can be computed
-                                          against human codes later.
-  - col R (18) D-Subtype              -- NEW. "natural_variability" or
-                                          "other_human_causes", category D only.
-  - col S (19) Contested              -- NEW. TRUE for category E, else FALSE.
-  - col T (20) LLM Rationale          -- NEW. 1-2 sentence justification, for
-                                          spot-checking/audit, not analysis.
+Writes Relevance, Attribution Score, Attribution Category, D-Subtype,
+Contested and LLM Rationale back to Master. Attribution Score is derived from
+the category in the same write step and stored as a literal rather than a
+formula, so openpyxl can read it without Excel having recalculated first.
 
-SECURITY NOTE: This script reads the API key from the ANTHROPIC_API_KEY
-environment variable. It deliberately does NOT read it from CLAUDE.md or
-any other file in this repo. CLAUDE.md is currently untracked (not
-committed) in this repo, which avoids the worst risk, but it's still a
-live secret sitting in a plain file -- one stray `git add .` away from
-being committed and pushed to github.com/Hariaksha/climate-disaster.
-Prefer setting ANTHROPIC_API_KEY as a shell/environment variable, or in a
-local .env file added to .gitignore, instead of leaving it in CLAUDE.md.
+Spend is capped at MAX_BUDGET_USD and the script stops rather than exceed it.
 
 Usage:
     pip install anthropic openpyxl
-    export ANTHROPIC_API_KEY=sk-ant-...   # set in your shell, not in a file
-    python code/llm_coder.py              # TEST_MODE first, then full run
-
-Cost tracking: the script sums actual input/output tokens from each API
-response and prints a running cost estimate against MODEL_PRICING below,
-and will refuse to start a new call once MAX_BUDGET_USD is exceeded.
+    export ANTHROPIC_API_KEY=sk-ant-...
+    python code/llm_coder.py        # TEST_MODE first; set False for full run
 """
 
 import os
