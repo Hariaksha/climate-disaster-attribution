@@ -58,20 +58,10 @@ TEST_MODE_ROWS = 5
 MAX_RETRIES = 5
 BASE_BACKOFF_SECONDS = 2.0
 
-# Master sheet columns, looked up by header text at startup.
-#
-# These used to be hardcoded indices. The sibling retrieval script
-# (archive.py) did the same and its constants went stale when the attribution
-# columns were inserted, shifting everything after them five places right --
-# it would have written article text into Contested and status into National
-# Newspaper on every row it touched. Nothing detects that: the writes succeed
-# and land on coded data. Reading the header row costs one pass and removes
-# the failure mode.
-#
-# Each entry is (accepted header names, fallback index). The fallback is used
-# only when no listed name is in the header row, which is how the four
-# attribution columns get created on a workbook that does not have them yet
-# (see NEW_COLUMN_HEADERS below).
+# (accepted header names, fallback index). Looked up by header at startup --
+# archive.py hardcoded these and silently wrote into the wrong columns once
+# the sheet was reordered. Fallbacks apply only when a header is absent,
+# which is how the attribution columns get created on an older workbook.
 COLUMN_SPEC = {
     "COL_DISASTER_ROW": (("Disaster Row #",), 1),
     "COL_ARTICLE_NUM": (("Article #",), 2),
