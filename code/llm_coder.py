@@ -289,13 +289,9 @@ def main():
         if ws.cell(row=1, column=col).value != header:
             ws.cell(row=1, column=col).value = header
 
-    # Relabel the existing numeric-score column to match the codebook's
-    # Calibration sheet's terminology -- it holds the article-level
-    # Attribution Score, not the disaster-level Attribution Index (that
-    # name is reserved for the aggregated AttributionIndex_d in the
-    # `All Disasters` sheet). Purely cosmetic: the All Disasters formula
-    # references this column by letter (Master!P), not by header text, so
-    # renaming the header does not affect it.
+    # "Attribution Index" is the disaster-level aggregate; this column is the
+    # article-level score. Safe to rename -- All Disasters refers to it by
+    # letter (Master!P), not by header text.
     ws.cell(row=1, column=COL_ATTRIBUTION_SCORE).value = "Attribution Score"
 
     # Rows already hand-coded in Calibration, matched by URL -- skip these,
